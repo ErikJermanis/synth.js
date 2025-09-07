@@ -8,7 +8,7 @@ const synth = new SynthMono(engine.context);
 const metro = new Metronome(engine.context);
 
 synth.out.connect(engine.master);
-// metro.out.connect(engine.master);
+metro.out.connect(engine.master);
 
 // 1-bar pattern: quarter notes C4 E4 G4 C5
 const pattern = [
@@ -17,6 +17,32 @@ const pattern = [
   { beat: 2, midi: 67, dur: 0.25 },
   { beat: 3, midi: 72, dur: 0.25 },
 ];
+
+const testNoteButton = document.getElementById("testNote");
+testNoteButton?.addEventListener("click", () => {
+  const now = engine.context.currentTime;
+  synth.note({ freq: midiToFreq(60), dur: 0.5, when: now + 0.1 });
+});
+
+window.addEventListener("keydown", (e) => {
+  const keyMap: Record<string, number> = {
+    q: 60,
+    w: 64,
+    e: 67,
+    r: 72,
+    t: 76,
+    z: 79,
+    u: 84,
+    i: 88,
+    o: 91,
+    p: 96,
+  };
+  const midi = keyMap[e.key.toLowerCase()];
+  if (midi !== undefined) {
+    const now = engine.context.currentTime;
+    synth.note({ freq: midiToFreq(midi), dur: 0.2, when: now });
+  }
+});
 
 engine.onSchedule = (now: number, until: number) => {
   const spb = engine.secondsPerBeat();
@@ -30,6 +56,7 @@ engine.onSchedule = (now: number, until: number) => {
       if (Math.floor(ev.beat) === barBeat) {
         const when = engine.beatStartTime + (b + (ev.beat - barBeat)) * spb;
         engine.scheduleAbs(when, () => {
+          console.log(`note ${ev.midi} at beat ${b + (ev.beat - barBeat)}`);
           synth.note({ freq: midiToFreq(ev.midi), dur: ev.dur, when });
         });
       }
