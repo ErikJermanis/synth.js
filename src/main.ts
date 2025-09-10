@@ -38,10 +38,31 @@ window.addEventListener("keydown", (e) => {
     p: 96,
   };
   const midi = keyMap[e.key.toLowerCase()];
+  if (midi !== undefined && !e.repeat) {
+    const now = engine.context.currentTime;
+    console.log(`${now}: key ${e.key} -> note on ${midi}`);
+    synth.noteOn({ freq: midiToFreq(midi), when: now });
+  }
+});
+
+window.addEventListener("keyup", (e) => {
+  const keyMap: Record<string, number> = {
+    q: 60,
+    w: 64,
+    e: 67,
+    r: 72,
+    t: 76,
+    z: 79,
+    u: 84,
+    i: 88,
+    o: 91,
+    p: 96,
+  };
+  const midi = keyMap[e.key.toLowerCase()];
   if (midi !== undefined) {
     const now = engine.context.currentTime;
-    console.log(`${now}: key ${e.key} -> note ${midi}`);
-    synth.note({ freq: midiToFreq(midi), dur: 0.8, when: now });
+    console.log(`${now}: key ${e.key} -> note off ${midi}`);
+    synth.noteOff({ freq: midiToFreq(midi), when: now });
   }
 });
 
@@ -51,7 +72,8 @@ engine.onSchedule = (now: number, until: number) => {
   const endBeat = Math.floor((until - engine.beatStartTime) / spb) + 1;
 
   for (let b = startBeat; b < endBeat; b++) {
-    const barBeat = ((b % engine.loopBeats) + engine.loopBeats) % engine.loopBeats;
+    const barBeat =
+      ((b % engine.loopBeats) + engine.loopBeats) % engine.loopBeats;
 
     for (const ev of pattern) {
       if (Math.floor(ev.beat) === barBeat) {
@@ -73,7 +95,9 @@ engine.onSchedule = (now: number, until: number) => {
 const btnStart = document.getElementById("start");
 const btnPlay = document.getElementById("play");
 const btnStop = document.getElementById("stop");
-const tempoIn: HTMLInputElement | null = document.getElementById("tempo") as HTMLInputElement;
+const tempoIn: HTMLInputElement | null = document.getElementById(
+  "tempo",
+) as HTMLInputElement;
 
 btnStart?.addEventListener("click", async () => {
   await engine.resume();
@@ -95,7 +119,9 @@ tempoIn?.addEventListener("change", () => {
   const v = Number(tempoIn.value) || 120;
   // keep phase-aligned by recomputing beatStartTime so the current beat stays continuous
   const now = engine.context.currentTime;
-  const beat = engine.isPlaying ? (now - engine.beatStartTime) / engine.secondsPerBeat() : engine.playheadBeat;
+  const beat = engine.isPlaying
+    ? (now - engine.beatStartTime) / engine.secondsPerBeat()
+    : engine.playheadBeat;
   engine.tempo = Math.max(40, Math.min(240, v));
   engine.beatStartTime = now - engine.beatsToSeconds(beat);
 });
