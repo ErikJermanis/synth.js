@@ -20,24 +20,24 @@ export class SynthMono {
     osc.connect(vca);
     vca.connect(this.vcf);
 
-    const a = 0.01;
-    const d = 0.15;
-    const s = 0.2;
-    const r = 0.2;
+    const attack = 0.2;
+    const decay = 0.6;
+    const sustain = 0.2;
+    const release = 0.4;
     const t0 = when;
-    const t1 = t0 + a;
-    const t2 = t1 + d;
+    const t1 = t0 + attack;
+    const t2 = t1 + decay;
     const t3 = t0 + dur;
 
     const g = vca.gain;
     g.cancelAndHoldAtTime(t0);
     g.setValueAtTime(0.0001, t0);
     g.exponentialRampToValueAtTime(1, t1);
-    g.exponentialRampToValueAtTime(s, t2);
-    g.setValueAtTime(s, t3);
-    g.exponentialRampToValueAtTime(0.0001, t3 + r);
+    g.exponentialRampToValueAtTime(sustain, t2);
+    g.setValueAtTime(sustain, t3);
+    g.exponentialRampToValueAtTime(0.0001, t3 + release);
 
     osc.start(t0);
-    osc.stop(t3 + r + 0.02);
+    osc.stop(t3 + release + 0.02);
   }
 }

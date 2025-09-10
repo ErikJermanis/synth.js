@@ -21,7 +21,7 @@ const pattern = [
 const testNoteButton = document.getElementById("testNote");
 testNoteButton?.addEventListener("click", () => {
   const now = engine.context.currentTime;
-  synth.note({ freq: midiToFreq(60), dur: 0.5, when: now + 0.1 });
+  synth.note({ freq: midiToFreq(60), dur: 1, when: now + 0.1 });
 });
 
 window.addEventListener("keydown", (e) => {
@@ -40,7 +40,8 @@ window.addEventListener("keydown", (e) => {
   const midi = keyMap[e.key.toLowerCase()];
   if (midi !== undefined) {
     const now = engine.context.currentTime;
-    synth.note({ freq: midiToFreq(midi), dur: 0.2, when: now });
+    console.log(`${now}: key ${e.key} -> note ${midi}`);
+    synth.note({ freq: midiToFreq(midi), dur: 0.8, when: now });
   }
 });
 
