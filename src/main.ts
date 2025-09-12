@@ -40,8 +40,28 @@ window.addEventListener("keydown", (e) => {
   const midi = keyMap[e.key.toLowerCase()];
   if (midi !== undefined) {
     const now = engine.context.currentTime;
-    console.log(`${now}: key ${e.key} -> note ${midi}`);
-    synth.note({ freq: midiToFreq(midi), dur: 0.8, when: now });
+    synth.noteOn({ freq: midiToFreq(midi), when: now });
+  }
+});
+
+window.addEventListener("keyup", (e) => {
+  const keyMap: Record<string, number> = {
+    q: 60,
+    w: 64,
+    e: 67,
+    r: 72,
+    t: 76,
+    z: 79,
+    u: 84,
+    i: 88,
+    o: 91,
+    p: 96,
+  };
+  console.log("press registered");
+  const midi = keyMap[e.key.toLowerCase()];
+  if (midi !== undefined) {
+    const now = engine.context.currentTime;
+    synth.noteOff({ freq: midiToFreq(midi), when: now });
   }
 });
 
