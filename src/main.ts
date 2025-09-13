@@ -57,7 +57,6 @@ window.addEventListener("keyup", (e) => {
     o: 91,
     p: 96,
   };
-  console.log("press registered");
   const midi = keyMap[e.key.toLowerCase()];
   if (midi !== undefined) {
     const now = engine.context.currentTime;

@@ -1,8 +1,13 @@
 export class SynthMono {
+  private readonly ATTACK = 0.001;
+  private readonly DECAY = 0.25;
+  private readonly SUSTAIN = 0.4;
+  private readonly RELEASE = 0.2;
+
   private ctx: AudioContext;
   private _out: GainNode;
   private vcf: BiquadFilterNode;
-  private activeNotes: Map<number, { osc: OscillatorNode; vca: GainNode }>;
+  private activeNotes: Map<number, { osc: OscillatorNode; vca: GainNode; at: number }>;
 
   constructor(ctx: AudioContext) {
     this.ctx = ctx;
@@ -29,30 +34,26 @@ export class SynthMono {
     osc.connect(vca);
     vca.connect(this.vcf);
 
-    const attack = 0.1;
-    const decay = 0.25;
-    const sustain = 0.6;
     const t0 = when;
-    const t1 = t0 + attack;
-    const t2 = t1 + decay;
+    const t1 = t0 + this.ATTACK;
+    const t2 = t1 + this.DECAY;
 
     const g = vca.gain;
     g.cancelAndHoldAtTime(t0);
     g.setValueAtTime(0.0001, t0);
     g.exponentialRampToValueAtTime(1, t1);
-    g.exponentialRampToValueAtTime(sustain, t2);
+    g.exponentialRampToValueAtTime(this.SUSTAIN, t2);
 
     osc.start(t0);
-    this.activeNotes.set(freq, { osc, vca });
+    this.activeNotes.set(freq, { osc, vca, at: when });
   }
 
   noteOff({ freq = 440, when = this.ctx.currentTime }) {
     const note = this.activeNotes.get(freq);
     if (!note) return;
 
-    const release = 0.2;
     const t0 = when;
-    const t1 = t0 + release;
+    const t1 = t0 + this.RELEASE;
 
     const g = note.vca.gain;
     g.cancelAndHoldAtTime(t0);
