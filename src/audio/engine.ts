@@ -14,7 +14,8 @@ export class AudioEngine {
   onSchedule: any;
 
   constructor() {
-    this.ctx = new (window.AudioContext || (window as any).webkitAudioContext)();
+    this.ctx = new (window.AudioContext ||
+      (window as any).webkitAudioContext)();
     this._master = new GainNode(this.ctx, { gain: 0.1 });
     const compressor = new DynamicsCompressorNode(this.ctx);
     this._master.connect(compressor);
@@ -62,6 +63,10 @@ export class AudioEngine {
 
   get loopBeats(): number {
     return this._loopBeats;
+  }
+
+  set loopBeats(value: number) {
+    this._loopBeats = value;
   }
 
   get isPlaying(): boolean {
@@ -138,7 +143,13 @@ export class AudioEngine {
   play() {
     if (this._isPlaying) return;
     this._isPlaying = true;
-    this._beatStartTime = this.context.currentTime - this.beatsToSeconds(this._playheadBeat);
+    this._beatStartTime =
+      this.context.currentTime - this.beatsToSeconds(this._playheadBeat);
+  }
+
+  pause() {
+    this._isPlaying = false;
+    this._events.length = 0;
   }
 
   stop() {
