@@ -8,12 +8,35 @@
   <body>
     <button id="start">Start</button>
     <button id="play">Play</button>
+    <button id="pause">Pause</button>
     <button id="stop">Stop</button>
     <label>
       Tempo
       <input type="number" id="tempo" min="40" max="240" value="120" />
     </label>
     <button id="testNote">Play a note once</button>
+    <div id="board"></div>
+    <style>
+      #board {
+        position: relative;
+        margin-top: 1rem;
+        border: 1px solid #555;
+        background-color: #222;
+        background-image:
+          linear-gradient(to right, #555 1px, transparent 1px),
+          linear-gradient(to bottom, #555 1px, transparent 1px);
+        background-size: 40px 40px;
+      }
+
+      .note {
+        position: absolute;
+        background: #3cf;
+        border: 1px solid #08c;
+        border-radius: 4px;
+        box-sizing: border-box;
+        cursor: move;
+      }
+    </style>
     <script type="module" src="/src/main.ts"></script>
   </body>
 </html>
