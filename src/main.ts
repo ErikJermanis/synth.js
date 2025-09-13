@@ -1,9 +1,11 @@
 import { AudioEngine } from "./audio/engine";
 import { Metronome } from "./audio/metronome";
 import { SynthMono } from "./audio/synthMono";
+import { WindowManager } from "./gui/windowManager";
 import { midiToFreq } from "./utils";
 
 const engine = new AudioEngine();
+const wm = new WindowManager();
 const synth = new SynthMono(engine.context);
 const metro = new Metronome(engine.context);
 
@@ -92,6 +94,7 @@ engine.onSchedule = (now: number, until: number) => {
 const btnStart = document.getElementById("start");
 const btnPlay = document.getElementById("play");
 const btnStop = document.getElementById("stop");
+const btnCreateWindow = document.getElementById("createWindow");
 const tempoIn: HTMLInputElement | null = document.getElementById("tempo") as HTMLInputElement;
 
 btnStart?.addEventListener("click", async () => {
@@ -108,6 +111,11 @@ btnPlay?.addEventListener("click", () => {
 btnStop?.addEventListener("click", () => {
   engine.stop();
   console.log("Stop");
+});
+
+btnCreateWindow?.addEventListener("click", () => {
+  const newWin = wm.createWindow("New Window " + Math.floor(Math.random() * 1000));
+  console.log("Created window:", newWin);
 });
 
 tempoIn?.addEventListener("change", () => {

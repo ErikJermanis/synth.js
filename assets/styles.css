@@ -1,0 +1,25 @@
+* {
+  box-sizing: border-box;
+}
+
+body {
+  font-family: Arial, sans-serif;
+  margin: 0;
+  padding: 0;
+}
+
+.window {
+  position: absolute;
+  background-color: azure;
+  border: 3px dashed gray;
+  border-radius: 8px;
+}
+
+.window-header {
+  background-color: lightgray;
+  padding: 8px;
+  cursor: move;
+  border-bottom: 2px solid gray;
+  border-top-left-radius: 6px;
+  border-top-right-radius: 6px;
+}
