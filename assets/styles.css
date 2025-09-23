@@ -23,3 +23,106 @@ body {
   border-top-left-radius: 6px;
   border-top-right-radius: 6px;
 }
+
+.sequencer-container {
+  margin: 20px;
+  max-width: 1000px;
+}
+
+.sequencer-board {
+  border: 2px solid #333;
+  border-radius: 8px;
+  background: #1a1a1a;
+  padding: 10px;
+  user-select: none;
+}
+
+.sequencer-header {
+  display: grid;
+  grid-template-columns: 60px repeat(16, 1fr);
+  gap: 2px;
+  margin-bottom: 4px;
+}
+
+.sequencer-corner {
+  background: #2a2a2a;
+  border-radius: 4px;
+}
+
+.sequencer-step-header {
+  background: #2a2a2a;
+  color: #fff;
+  text-align: center;
+  padding: 4px;
+  border-radius: 4px;
+  font-size: 12px;
+  font-weight: bold;
+}
+
+.sequencer-row {
+  display: grid;
+  grid-template-columns: 60px repeat(16, 1fr);
+  gap: 2px;
+  margin-bottom: 2px;
+}
+
+.sequencer-note-label {
+  background: #333;
+  color: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: bold;
+  border-radius: 4px;
+  font-size: 12px;
+}
+
+.sequencer-cell {
+  aspect-ratio: 1;
+  background: #0a0a0a;
+  border: 1px solid #333;
+  border-radius: 2px;
+  cursor: pointer;
+  position: relative;
+  transition: background-color 0.1s ease;
+}
+
+.sequencer-cell:hover {
+  background: #1a1a1a;
+}
+
+.sequencer-cell:nth-child(4n + 2) {
+  border-left-color: #555;
+  border-left-width: 2px;
+}
+
+.sequencer-note {
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  right: 2px;
+  bottom: 2px;
+  background: linear-gradient(135deg, #4a9eff, #0066cc);
+  border-radius: 3px;
+  cursor: grab;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  font-size: 10px;
+  font-weight: bold;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.5);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+  transition: transform 0.1s ease;
+  z-index: 2;
+}
+
+.sequencer-note:hover {
+  transform: scale(1.02);
+  box-shadow: 0 3px 6px rgba(0, 0, 0, 0.4);
+}
+
+.sequencer-note:active {
+  cursor: grabbing;
+  transform: scale(0.98);
+}

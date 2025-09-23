@@ -2,6 +2,7 @@ import { AudioEngine } from "./audio/engine";
 import { Metronome } from "./audio/metronome";
 import { SynthMono } from "./audio/synthMono";
 import { WindowManager } from "./gui/windowManager";
+import { SequencerBoard } from "./gui/sequencerBoard";
 import { midiToFreq } from "./utils";
 
 const engine = new AudioEngine();
@@ -10,15 +11,19 @@ const synth = new SynthMono(engine.context);
 const metro = new Metronome(engine.context);
 
 synth.out.connect(engine.master);
-metro.out.connect(engine.master);
+// metro.out.connect(engine.master);
 
-// 1-bar pattern: quarter notes C4 E4 G4 C5
-const pattern = [
-  { beat: 0, midi: 60, dur: 0.25 },
-  { beat: 1, midi: 64, dur: 0.25 },
-  { beat: 2, midi: 67, dur: 0.25 },
-  { beat: 3, midi: 72, dur: 0.25 },
-];
+const sequencerContainer = document.getElementById("sequencer-container");
+if (!sequencerContainer) {
+  throw new Error("Sequencer container not found");
+}
+const sequencer = new SequencerBoard(sequencerContainer);
+
+// Initialize sequencer with default pattern
+sequencer.addNote(0, 60, 1);
+sequencer.addNote(4, 64, 1);
+sequencer.addNote(8, 67, 1);
+sequencer.addNote(12, 72, 1);
 
 const testNoteButton = document.getElementById("testNote");
 testNoteButton?.addEventListener("click", () => {
@@ -67,27 +72,38 @@ window.addEventListener("keyup", (e) => {
 });
 
 engine.onSchedule = (now: number, until: number) => {
-  const spb = engine.secondsPerBeat();
-  const startBeat = Math.floor((now - engine.beatStartTime) / spb);
-  const endBeat = Math.floor((until - engine.beatStartTime) / spb) + 1;
+  const spb = engine.secondsPerBeat() / 4; // 16th note subdivisions
+  const startStep = Math.floor((now - engine.beatStartTime) / spb);
+  const endStep = Math.floor((until - engine.beatStartTime) / spb) + 1;
+  const loopSteps = engine.loopBeats * 4; // 16 steps per 4-beat loop
 
-  for (let b = startBeat; b < endBeat; b++) {
-    const barBeat = ((b % engine.loopBeats) + engine.loopBeats) % engine.loopBeats;
+  for (let s = startStep; s < endStep; s++) {
+    const loopStep = ((s % loopSteps) + loopSteps) % loopSteps;
+    const beatInLoop = Math.floor(loopStep / 4);
 
-    for (const ev of pattern) {
-      if (Math.floor(ev.beat) === barBeat) {
-        const when = engine.beatStartTime + (b + (ev.beat - barBeat)) * spb;
-        engine.scheduleAbs(when, () => {
-          console.log(`note ${ev.midi} at beat ${b + (ev.beat - barBeat)}`);
-          synth.note({ freq: midiToFreq(ev.midi), dur: ev.dur, when });
-        });
+    // Schedule sequencer notes
+    const notes = sequencer.getNotesForScheduling();
+    for (const note of notes) {
+      if (note.step === loopStep) {
+        const eventId = `loop-${Math.floor(s / loopSteps)}-step-${note.step}-note-${note.note}`;
+        if (!sequencer.isEventScheduled(eventId)) {
+          const when = engine.beatStartTime + s * spb;
+          const duration = note.duration * spb;
+          engine.scheduleAbs(when, () => {
+            synth.note({ freq: midiToFreq(note.note), dur: duration, when });
+          });
+          sequencer.markEventScheduled(eventId);
+        }
       }
     }
 
-    const whenBeat = engine.beatStartTime + b * spb;
-    engine.scheduleAbs(whenBeat, () => {
-      metro.click({ strong: barBeat === 0, when: whenBeat });
-    });
+    // Schedule metronome clicks on quarter note beats
+    if (loopStep % 4 === 0) {
+      const when = engine.beatStartTime + s * spb;
+      engine.scheduleAbs(when, () => {
+        metro.click({ strong: beatInLoop === 0, when });
+      });
+    }
   }
 };
 
@@ -110,6 +126,7 @@ btnPlay?.addEventListener("click", () => {
 
 btnStop?.addEventListener("click", () => {
   engine.stop();
+  sequencer.clearScheduledEvents();
   console.log("Stop");
 });
 
